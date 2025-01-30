@@ -30,8 +30,47 @@ def load(path):
     return size, lifetime
 
 def fit(data, discrete=False):
+    """
+    -data: data to fit
+    -discrete: if data is discrete
+
+    return: law, lawFit
+        -law: powerlaw.Fit object
+        -lawFit: powerlaw.Power_Law object
+    
+    Here law is the fit to the data and lawFit is the power law with the parameters of the fit
+    """
     law = powerlaw.Fit(data, discrete=discrete)
     alpha = law.power_law.alpha
     xmin = law.power_law.xmin
     lawFit = powerlaw.Power_Law(xmin=xmin, parameters=[alpha], discrete=discrete)
     return law, lawFit
+
+def fitPowerFunction(uniqueLifetime, area):
+    """
+    -uniqueLifetime: unique values of lifetime
+    -area: area of the data
+
+    return: m, c
+        -m: gamma parameter (slope of the linear fit)
+        -c: constant parameter (intercept of the linear fit)
+    """
+    log_unqiueLifetime = np.log(uniqueLifetime)
+    log_area = np.log(area)
+
+    A = np.vstack([log_unqiueLifetime, np.ones(len(log_unqiueLifetime))]).T
+    m, c = np.linalg.lstsq(A, log_area, rcond=None)[0]
+    return m, c
+
+def plotPowerFunction(uniqueLifetime, area, m, c):
+    plt.loglog(uniqueLifetime, area, 'bo', label='Empirical')
+    plt.loglog(uniqueLifetime, np.exp(m*np.log(uniqueLifetime) + c), 'r', label=f'Fit (gamma = {m:.2f}')
+
+def getArea(lifetime, size):
+    uniqueLifetime = np.unique(lifetime)
+    uniqueLifetime = np.sort(uniqueLifetime)
+    area = np.zeros(uniqueLifetime.shape)
+    for i, t in enumerate(uniqueLifetime):
+        area[i] = np.sum(size[lifetime == t])
+
+    return uniqueLifetime, area

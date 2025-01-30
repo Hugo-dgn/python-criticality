@@ -15,20 +15,29 @@ def main():
 
     lawLifetime, lawFitLiftime = utils.fit(lifetime, discrete=True)
     lawSize, lawFitSize = utils.fit(size, discrete=False)
+
+    uniqueLifetime, area = utils.getArea(lifetime, size)
+    m, c = utils.fitPowerFunction(uniqueLifetime, area)
     
     plt.figure()
-    plt.subplot(211)
+    plt.subplot(221)
     utils.plot_pdf_empirical(lawSize)
     utils.plot_pdf_fit(lawSize, lawFitSize, size)
     plt.xlabel('Size')
     plt.ylabel('PDF')
     plt.legend()
 
-    plt.subplot(212)
+    plt.subplot(222)
     utils.plot_pdf_empirical(lawLifetime)
     utils.plot_pdf_fit(lawLifetime, lawFitLiftime, lifetime)
     plt.xlabel('Lifetime')
     plt.ylabel('PDF')
+    plt.legend()
+
+    plt.subplot(223)
+    utils.plotPowerFunction(uniqueLifetime, area, m, c)
+    plt.xlabel('Lifetime')
+    plt.ylabel('Area')
     plt.legend()
 
     plt.tight_layout()
